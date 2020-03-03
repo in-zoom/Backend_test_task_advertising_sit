@@ -3,9 +3,11 @@ package DB
 import (
 	"database/sql"
 	"fmt"
-	_ "github.com/lib/pq"
 	"log"
 	"os"
+
+	"github.com/lib/pq"
+	_ "github.com/lib/pq"
 )
 
 var db *sql.DB
@@ -44,9 +46,9 @@ func createTable() (err error) {
 	return nil
 }
 
-func AddNewAd(description, title string, price float64) (err error) {
-	ins := "INSERT INTO ad_table (announcement_text, title_ad, price) VALUES ($1, $2, $3)"
-	_, err = db.Exec(ins, description, title, price)
+func AddNewAd(description, title string, price float64, arrayOfLinks []string) (err error) {
+	ins := "INSERT INTO ad_table (announcement_text, title_ad, price, links) VALUES ($1, $2, $3, $4)"
+	_, err = db.Exec(ins, description, title, price, pq.Array(arrayOfLinks))
 	if err != nil {
 		return err
 	}
