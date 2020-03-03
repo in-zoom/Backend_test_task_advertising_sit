@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	"github.com/lib/pq"
 	_ "github.com/lib/pq"
@@ -14,13 +15,13 @@ var db *sql.DB
 var err error
 var rows *sql.Rows
 
-func Open() (*sql.DB, error) {
-	db = Connect()
+func open() (*sql.DB, error) {
+	db = connect()
 	err = createTable()
 	return db, err
 }
 
-func Connect() *sql.DB {
+func connect() *sql.DB {
 	databaseURL := os.Getenv("DATABASE_URL")
 	db, err := sql.Open("postgres", databaseURL)
 	if err != nil {
@@ -35,7 +36,7 @@ func Connect() *sql.DB {
 }
 
 func createTable() (err error) {
-    ins := "CREATE TABLE IF NOT EXISTS ad_table (id SERIAL, date DATE, price MONEY, announcement_text VARCHAR, title_ad VARCHAR, links TEXT[])"
+	ins := "CREATE TABLE IF NOT EXISTS ad_table (id SERIAL, date DATE, price MONEY, announcement_text VARCHAR, title_ad VARCHAR, links TEXT[])"
 	_, err = db.Exec(ins)
 	if err != nil {
 		return err
@@ -47,8 +48,11 @@ func createTable() (err error) {
 }
 
 func AddNewAd(description, title string, price float64, arrayOfLinks []string) (err error) {
-	ins := "INSERT INTO ad_table (announcement_text, title_ad, price, links) VALUES ($1, $2, $3, $4)"
-	_, err = db.Exec(ins, description, title, price, pq.Array(arrayOfLinks))
+	t := time.Now()
+	tt := t.Format("02.01.2006")
+	open()
+	ins := "INSERT INTO ad_table (announcement_text, title_ad, price, links, date) VALUES ($1, $2, $3, $4, $5)"
+	_, err = db.Exec(ins, description, title, price, pq.Array(arrayOfLinks), tt)
 	if err != nil {
 		return err
 	}

@@ -5,5 +5,6 @@ type NewAd struct {
 	Description string   `json:"description"`
 	Title       string   `json:"title"`
 	Price       string   `json:"price"`
+	Data        string   `json:"data"` 
 	Link        []string `json: "link"`
 }

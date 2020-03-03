@@ -20,14 +20,14 @@ type errMessage struct {
 
 func AddNewAd(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-
 	contentType, params, err := mime.ParseMediaType(r.Header.Get("Content-Type"))
 	if err != nil || !strings.HasPrefix(contentType, "multipart/") {
 		ResponseError(w, 400, err)
 	}
 
 	multipartReader := multipart.NewReader(r.Body, params["boundary"])
-
+	var resultDescription, resultTitle string
+	var resultPrice float64
 	arrayOfLinks := make([]string, 0)
 	for {
 		part, err := multipartReader.NextPart()
@@ -36,7 +36,7 @@ func AddNewAd(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		}
 
 		if err != nil {
-			http.Error(w, "unexpected error when retrieving a part of the message", http.StatusInternalServerError)
+			ResponseError(w, 500, err)
 			return
 		}
 		defer part.Close()
@@ -64,30 +64,29 @@ func AddNewAd(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 				return
 			}
 
-			resultDescription, err := validation.ValidateDescription(addedAd.Description)
+			resultDescription, err = validation.ValidateDescription(addedAd.Description)
 			if err != nil {
 				ResponseError(w, 400, err)
 				return
 			}
 
-			resultTitle, err := validation.ValidateTitle(addedAd.Title)
+			resultTitle, err = validation.ValidateTitle(addedAd.Title)
 			if err != nil {
 				ResponseError(w, 400, err)
 				return
 			}
 
-			resultPrice, err := validation.ValidatePrice(addedAd.Price)
+			resultPrice, err = validation.ValidatePrice(addedAd.Price)
 			if err != nil {
 				ResponseError(w, 400, err)
-				return
-			}
-
-			err = DB.AddNewAd(resultDescription, resultTitle, resultPrice, arrayOfLinks)
-			if err != nil {
-				ResponseError(w, 500, err)
 				return
 			}
 		}
+	}
+	err = DB.AddNewAd(resultDescription, resultTitle, resultPrice, arrayOfLinks)
+	if err != nil {
+		ResponseError(w, 500, err)
+		return
 	}
 }
 
