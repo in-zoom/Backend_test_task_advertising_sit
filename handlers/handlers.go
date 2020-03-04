@@ -11,11 +11,18 @@ import (
 	"mime/multipart"
 	"net/http"
 	"strings"
-    "github.com/julienschmidt/httprouter"
+
+	"github.com/julienschmidt/httprouter"
 )
 
 type errMessage struct {
 	Message string `json:"message"`
+}
+
+type Message struct {
+	OkMessage string `json:"okMessage"`
+	Status    int    `json:"status"`
+	Id        int    `json:"id"`
 }
 
 func AddNewAd(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
@@ -83,15 +90,22 @@ func AddNewAd(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 			}
 		}
 	}
-	err = DB.AddNewAd(resultDescription, resultTitle, resultPrice, arrayOfLinks)
+	id, err := DB.AddNewAd(resultDescription, resultTitle, resultPrice, arrayOfLinks)
 	if err != nil {
 		ResponseError(w, 500, err)
 		return
+	} else {
+		ResponceOk(w, 200, id)
 	}
 }
 
-func ResponseError(w http.ResponseWriter, code int, err error) {
+func ResponceOk(w http.ResponseWriter, code int, id int) {
 	w.WriteHeader(code)
+	m := Message{"Ваше объявление успешно добавленно", code, id}
+	json.NewEncoder(w).Encode(m)
+}
+
+func ResponseError(w http.ResponseWriter, code int, err error) {
 	errMessage := errMessage{err.Error()}
 	json.NewEncoder(w).Encode(errMessage)
 }

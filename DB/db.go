@@ -35,26 +35,27 @@ func connect() *sql.DB {
 	return db
 }
 
-func createTable() (err error) {
+func createTable() (error) {
 	ins := "CREATE TABLE IF NOT EXISTS ad_table (id SERIAL, date DATE, price MONEY, announcement_text VARCHAR, title_ad VARCHAR, links TEXT[])"
 	_, err = db.Exec(ins)
 	if err != nil {
-		return err
+		return  err
 	}
 	if err != nil {
-		return err
+		return  err
 	}
-	return nil
+	return  nil
 }
 
-func AddNewAd(description, title string, price float64, arrayOfLinks []string) (err error) {
+func AddNewAd(description, title string, price float64, arrayOfLinks []string) (int, error) {
 	t := time.Now()
 	tt := t.Format("02.01.2006")
 	open()
-	ins := "INSERT INTO ad_table (announcement_text, title_ad, price, links, date) VALUES ($1, $2, $3, $4, $5)"
-	_, err = db.Exec(ins, description, title, price, pq.Array(arrayOfLinks), tt)
+	var id int
+	ins := "INSERT INTO ad_table (announcement_text, title_ad, price, links, date) VALUES ($1, $2, $3, $4, $5) returning id"
+	err = db.QueryRow(ins, description, title, price, pq.Array(arrayOfLinks), tt).Scan(&id)
 	if err != nil {
-		return err
+		return 0, err
 	}
-	return nil
+	return id, nil
 }
