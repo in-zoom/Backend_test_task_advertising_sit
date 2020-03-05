@@ -18,5 +18,6 @@ func main() {
 	initialize()
 	router := httprouter.New()
 	router.POST("/create", handlers.AddNewAd)
+	router.GET("/ads", handlers.GetListAds)
 	http.ListenAndServe(":8080", router)
 }

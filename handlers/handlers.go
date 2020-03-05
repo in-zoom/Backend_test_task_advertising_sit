@@ -11,8 +11,7 @@ import (
 	"mime/multipart"
 	"net/http"
 	"strings"
-
-	"github.com/julienschmidt/httprouter"
+    "github.com/julienschmidt/httprouter"
 )
 
 type errMessage struct {
@@ -94,9 +93,43 @@ func AddNewAd(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	if err != nil {
 		ResponseError(w, 500, err)
 		return
-	} else {
-		ResponceOk(w, 200, id)
 	}
+	ResponceOk(w, 200, id)
+}
+
+func GetListAds(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+
+	url := r.URL.Query()
+	attribute := url.Get("atribute")
+	order := url.Get("order")
+	offset := url.Get("offset")
+
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+
+	resultAtribute, err := validation.ValidateAtribute(attribute)
+	if err != nil {
+		ResponseError(w, 400, err)
+		return
+	}
+
+	resultOrder, err := validation.ValidateOrder(order)
+	if err != nil {
+		ResponseError(w, 400, err)
+		return
+	}
+
+	resultOffset, err := validation.ValidateOffset(offset)
+	if err != nil {
+		ResponseError(w, 400, err)
+		return
+	}
+
+	listAds, err := DB.ReceiveListAds(resultAtribute, resultOrder, resultOffset)
+	if err != nil {
+		ResponseError(w, 500, err)
+		return
+	}
+	json.NewEncoder(w).Encode(listAds)
 }
 
 func ResponceOk(w http.ResponseWriter, code int, id int) {

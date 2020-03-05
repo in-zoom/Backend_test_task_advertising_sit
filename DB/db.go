@@ -1,13 +1,13 @@
 package DB
 
 import (
+	"Backend_task_advertising_site/data"
 	"database/sql"
 	"fmt"
 	"log"
 	"os"
 	"time"
-
-	"github.com/lib/pq"
+    "github.com/lib/pq"
 	_ "github.com/lib/pq"
 )
 
@@ -16,12 +16,12 @@ var err error
 var rows *sql.Rows
 
 func open() (*sql.DB, error) {
-	db = connect()
+	db = Connect()
 	err = createTable()
 	return db, err
 }
 
-func connect() *sql.DB {
+func Connect() *sql.DB {
 	databaseURL := os.Getenv("DATABASE_URL")
 	db, err := sql.Open("postgres", databaseURL)
 	if err != nil {
@@ -35,16 +35,16 @@ func connect() *sql.DB {
 	return db
 }
 
-func createTable() (error) {
+func createTable() error {
 	ins := "CREATE TABLE IF NOT EXISTS ad_table (id SERIAL, date DATE, price MONEY, announcement_text VARCHAR, title_ad VARCHAR, links TEXT[])"
 	_, err = db.Exec(ins)
 	if err != nil {
-		return  err
+		return err
 	}
 	if err != nil {
-		return  err
+		return err
 	}
-	return  nil
+	return nil
 }
 
 func AddNewAd(description, title string, price float64, arrayOfLinks []string) (int, error) {
@@ -58,4 +58,28 @@ func AddNewAd(description, title string, price float64, arrayOfLinks []string) (
 		return 0, err
 	}
 	return id, nil
+}
+
+func ReceiveListAds(attribute, order, offset string) ([]data.Ads, error) {
+	db := Connect()
+	var rows *sql.Rows
+	query := "SELECT title_ad, links[1:1], price FROM ad_table" + " " + attribute + " " + order + " " + "limit 10" + " " + offset
+	rows, err = db.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	list := make([]data.Ads, 0)
+	var ads data.Ads
+	for rows.Next() {
+		if err = rows.Scan(&ads.Title, pq.Array(&ads.Link), &ads.Price); err != nil {
+			fmt.Println(err)
+			return nil, err
+		}
+		list = append(list, ads)
+	}
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+	return list, nil
 }
