@@ -6,7 +6,7 @@ import (
 )
 
 func ValidateAtribute(attribute string) (string, error) {
-	witeAttribute := []string{"price", "data"}
+	witeAttribute := []string{"price", "date"}
 	prepareAttribute := prepare(attribute)
 	if prepareAttribute == "" {
 		return "", nil

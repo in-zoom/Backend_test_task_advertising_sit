@@ -7,7 +7,8 @@ import (
 	"log"
 	"os"
 	"time"
-    "github.com/lib/pq"
+
+	"github.com/lib/pq"
 	_ "github.com/lib/pq"
 )
 
@@ -16,12 +17,12 @@ var err error
 var rows *sql.Rows
 
 func open() (*sql.DB, error) {
-	db = Connect()
+	db = connect()
 	err = createTable()
 	return db, err
 }
 
-func Connect() *sql.DB {
+func connect() *sql.DB {
 	databaseURL := os.Getenv("DATABASE_URL")
 	db, err := sql.Open("postgres", databaseURL)
 	if err != nil {
@@ -47,6 +48,28 @@ func createTable() error {
 	return nil
 }
 
+func GettingNumberOfRecords() (numbeOfRecords int, err error) {
+	db := connect()
+	query := "SELECT count(*) FROM ad_table"
+	rows, err = db.Query(query)
+	if err != nil {
+		return 0, err
+	}
+	defer rows.Close()
+
+	var numberOfRecords int
+	for rows.Next() {
+		if err = rows.Scan(&numberOfRecords); err != nil {
+			return 0, err
+		}
+	}
+
+	if err = rows.Err(); err != nil {
+		return 0, err
+	}
+	return numberOfRecords, nil
+}
+
 func AddNewAd(description, title string, price float64, arrayOfLinks []string) (int, error) {
 	t := time.Now()
 	tt := t.Format("02.01.2006")
@@ -61,18 +84,18 @@ func AddNewAd(description, title string, price float64, arrayOfLinks []string) (
 }
 
 func ReceiveListAds(attribute, order, offset string) ([]data.Ads, error) {
-	db := Connect()
-	var rows *sql.Rows
-	query := "SELECT title_ad, links[1:1], price FROM ad_table" + " " + attribute + " " + order + " " + "limit 10" + " " + offset
+	db := connect()
+	query := "SELECT id, date, title_ad, links[1:1], price FROM ad_table" + " " + attribute + " " + order + " " + "limit 10" + " " + offset
 	rows, err = db.Query(query)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
+
 	list := make([]data.Ads, 0)
 	var ads data.Ads
 	for rows.Next() {
-		if err = rows.Scan(&ads.Title, pq.Array(&ads.Link), &ads.Price); err != nil {
+		if err = rows.Scan(&ads.Id, &ads.Data, &ads.Title, pq.Array(&ads.Link), &ads.Price); err != nil {
 			fmt.Println(err)
 			return nil, err
 		}
@@ -82,4 +105,40 @@ func ReceiveListAds(attribute, order, offset string) ([]data.Ads, error) {
 		return nil, err
 	}
 	return list, nil
+}
+
+func GetOneAd(id, fields string) ([]data.Ads, error) {
+	db := connect()
+	var query string
+
+	if len(fields) == 0 {
+		query = fmt.Sprintf("SELECT price, title_ad, links[1:1] FROM ad_table WHERE id = %s", id)
+	} else {
+		query = fmt.Sprintf("SELECT announcement_text, price, title_ad, links[1:3] FROM ad_table WHERE id = %s", id)
+	}
+
+	rows, err = db.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	adOne := make([]data.Ads, 0)
+	var ad data.Ads
+	for rows.Next() {
+		if len(fields) == 0 {
+			if err = rows.Scan(&ad.Price, &ad.Title, pq.Array(&ad.Link)); err != nil {
+				return nil, err
+			}
+		} else {
+			if err = rows.Scan(&ad.Description, &ad.Price, &ad.Title, pq.Array(&ad.Link)); err != nil {
+				return nil, err
+			}
+		}
+		adOne = append(adOne, ad)
+	}
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+	return adOne, nil
 }

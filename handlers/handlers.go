@@ -11,14 +11,15 @@ import (
 	"mime/multipart"
 	"net/http"
 	"strings"
-    "github.com/julienschmidt/httprouter"
+
+	"github.com/julienschmidt/httprouter"
 )
 
 type errMessage struct {
 	Message string `json:"message"`
 }
 
-type Message struct {
+type message struct {
 	OkMessage string `json:"okMessage"`
 	Status    int    `json:"status"`
 	Id        int    `json:"id"`
@@ -132,9 +133,34 @@ func GetListAds(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	json.NewEncoder(w).Encode(listAds)
 }
 
+func GetSpecificAd(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+
+	url := r.URL.Query()
+	id := url.Get("id")
+	fields := url.Get("fields")
+
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+
+	resultId, err := validation.ValidateId(id)
+	if err != nil {
+		ResponseError(w, 400, err)
+	}
+
+	resultfields := validation.ValidateFields(fields)
+	if err != nil{
+		ResponseError(w, 400, err)
+	}
+
+	ad, err := DB.GetOneAd(resultId, resultfields)
+	if err != nil {
+		ResponseError(w, 500, err)
+	}
+	json.NewEncoder(w).Encode(ad)
+}
+
 func ResponceOk(w http.ResponseWriter, code int, id int) {
 	w.WriteHeader(code)
-	m := Message{"Ваше объявление успешно добавленно", code, id}
+	m := message{"Ваше объявление успешно добавленно", code, id}
 	json.NewEncoder(w).Encode(m)
 }
 

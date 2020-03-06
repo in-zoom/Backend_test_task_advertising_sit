@@ -2,7 +2,6 @@ package validation
 
 import (
 	"Backend_task_advertising_site/DB"
-	"database/sql"
 	"errors"
 	"strconv"
 )
@@ -17,7 +16,7 @@ func ValidateOffset(offset string) (resultOffset string, err error) {
 		return "", errors.New("Значение не может быть отрицательным")
 	}
 
-	numberOfRecords, err := gettingNumberOfRecords(DB.Connect())
+	numberOfRecords, err := DB.GettingNumberOfRecords()
 	if err != nil {
 		return "", err
 	}
@@ -28,25 +27,4 @@ func ValidateOffset(offset string) (resultOffset string, err error) {
 		return "offset" + " " + offset, nil
 	}
 	return "", nil
-}
-
-func gettingNumberOfRecords(db *sql.DB) (numbeOfRecords int, err error) {
-	query := "SELECT count(*) FROM ad_table "
-	rows, err := db.Query(query)
-	if err != nil {
-		return 0, err
-	}
-	defer rows.Close()
-
-	var numberOfRecords int
-	for rows.Next() {
-		if err = rows.Scan(&numberOfRecords); err != nil {
-			return 0, err
-		}
-	}
-
-	if err = rows.Err(); err != nil {
-		return 0, err
-	}
-	return numberOfRecords, nil
 }
