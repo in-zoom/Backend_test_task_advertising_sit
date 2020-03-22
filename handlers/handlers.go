@@ -137,7 +137,7 @@ func GetSpecificAd(w http.ResponseWriter, r *http.Request, _ httprouter.Params) 
 
 	url := r.URL.Query()
 	id := url.Get("id")
-	fields := url.Get("fields")
+	fields, _ := url["fields"]
 
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 
@@ -146,8 +146,8 @@ func GetSpecificAd(w http.ResponseWriter, r *http.Request, _ httprouter.Params) 
 		ResponseError(w, 400, err)
 	}
 
-	resultfields := validation.ValidateFields(fields)
-	if err != nil{
+	resultfields, err := validation.ValidateFields(fields)
+	if err != nil {
 		ResponseError(w, 400, err)
 	}
 

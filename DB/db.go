@@ -109,31 +109,27 @@ func ReceiveListAds(attribute, order, offset string) ([]data.Ads, error) {
 
 func GetOneAd(id, fields string) ([]data.Ads, error) {
 	db := connect()
-	var query string
-
-	if len(fields) == 0 {
-		query = fmt.Sprintf("SELECT price, title_ad, links[1:1] FROM ad_table WHERE id = %s", id)
-	} else {
-		query = fmt.Sprintf("SELECT announcement_text, price, title_ad, links[1:3] FROM ad_table WHERE id = %s", id)
-	}
-
+	query := fmt.Sprintf("SELECT date, price, title_ad, %s FROM ad_table WHERE id = %s", fields, id)
 	rows, err = db.Query(query)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
+	columns, err := rows.Columns()
+	colNum := len(columns)
+
 	adOne := make([]data.Ads, 0)
 	var ad data.Ads
 	for rows.Next() {
-		if len(fields) == 0 {
-			if err = rows.Scan(&ad.Price, &ad.Title, pq.Array(&ad.Link)); err != nil {
-				return nil, err
-			}
-		} else {
-			if err = rows.Scan(&ad.Description, &ad.Price, &ad.Title, pq.Array(&ad.Link)); err != nil {
-				return nil, err
-			}
+
+		cols := make([]interface{}, colNum)
+		for i := 0; i < colNum; i++ {
+			cols[i] = vehicleCol(columns[i], &ad)
+		}
+
+		if err = rows.Scan(cols...); err != nil {
+			return nil, err
 		}
 		adOne = append(adOne, ad)
 	}
@@ -141,4 +137,21 @@ func GetOneAd(id, fields string) ([]data.Ads, error) {
 		return nil, err
 	}
 	return adOne, nil
+}
+
+func vehicleCol(colname string, ad *data.Ads) interface{} {
+	switch colname {
+	case "date":
+		return &ad.Data
+	case "price":
+		return &ad.Price
+	case "title_ad":
+		return &ad.Title
+	case "links":
+		return pq.Array(&ad.Link)
+	case "announcement_text":
+		return &ad.Description
+	default:
+		panic("Неизвестный столбец " + colname)
+	}
 }
