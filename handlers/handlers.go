@@ -2,8 +2,8 @@ package handlers
 
 import (
 	"Backend_task_advertising_site/DB"
+	"Backend_task_advertising_site/controllers"
 	"Backend_task_advertising_site/data"
-	"Backend_task_advertising_site/upload"
 	"Backend_task_advertising_site/validation"
 	"encoding/json"
 	"io"
@@ -50,7 +50,8 @@ func AddNewAd(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 		switch part.Header.Get("Content-Type") {
 		case "image/jpeg":
-			nameLinks, err := upload.UploadPhoto(part)
+
+			nameLinks, err := controllers.UploadFilesToBucket(part)
 			if err != nil {
 				ResponseError(w, 400, err)
 				return
@@ -90,6 +91,7 @@ func AddNewAd(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 			}
 		}
 	}
+
 	id, err := DB.AddNewAd(resultDescription, resultTitle, resultPrice, arrayOfLinks)
 	if err != nil {
 		ResponseError(w, 500, err)
@@ -144,16 +146,19 @@ func GetSpecificAd(w http.ResponseWriter, r *http.Request, _ httprouter.Params) 
 	resultId, err := validation.ValidateId(id)
 	if err != nil {
 		ResponseError(w, 400, err)
+		return
 	}
 
 	resultfields, err := validation.ValidateFields(fields)
 	if err != nil {
 		ResponseError(w, 400, err)
+		return
 	}
 
 	ad, err := DB.GetOneAd(resultId, resultfields)
 	if err != nil {
 		ResponseError(w, 500, err)
+		return
 	}
 	json.NewEncoder(w).Encode(ad)
 }

@@ -2,17 +2,12 @@ package main
 
 import (
 	"Backend_task_advertising_site/handlers"
-	"github.com/joho/godotenv"
-	"github.com/julienschmidt/httprouter"
 	"log"
 	"net/http"
-)
 
-func initialize() {
-	if err := godotenv.Load(); err != nil {
-		log.Print("Файл .env не найден")
-	}
-}
+	"github.com/joho/godotenv"
+	"github.com/julienschmidt/httprouter"
+)
 
 func main() {
 	initialize()
@@ -21,4 +16,10 @@ func main() {
 	router.GET("/ads", handlers.GetListAds)
 	router.GET("/ad", handlers.GetSpecificAd)
 	http.ListenAndServe(":8080", router)
+}
+
+func initialize() {
+	if err := godotenv.Load(); err != nil {
+		log.Print("Файл .env не найден")
+	}
 }

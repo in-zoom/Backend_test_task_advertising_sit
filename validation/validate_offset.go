@@ -7,6 +7,9 @@ import (
 )
 
 func ValidateOffset(offset string) (resultOffset string, err error) {
+	if offset == "" {
+		return "", nil
+	}
 	offsetInt, err := strconv.Atoi(offset)
 	if err != nil {
 		return "", errors.New("Задано некорректное значение")

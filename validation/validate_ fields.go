@@ -27,10 +27,10 @@ func checkField(inputField string) (string, error) {
 	whiteFields := []string{"photos", "description"}
 	for _, currentWhiteField := range whiteFields {
 		if currentWhiteField == inputField {
-			if "photos" == inputField {
+			switch inputField {
+			case "photos":
 				return "links[1:3]", nil
-			}
-			if "description" == inputField {
+			case "description":
 				return "announcement_text", nil
 			}
 		}
