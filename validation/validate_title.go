@@ -5,17 +5,12 @@ import (
 	"strings"
 )
 
-func ValidateTitle(title string) (string, error){
-	titlePrepare := preparePrice(title)
-	if titlePrepare == "" {
-	return "", errors.New("Введите название объявления")
-	} else if len(titlePrepare) > 200 {
-	return "", errors.New("Название не может содержать болие двухсот символов")	
+func ValidateTitle(title string) (string, error) {
+	titleSpaceRemoval := strings.TrimSpace(title)
+	if titleSpaceRemoval == "" {
+		return "", errors.New("Введите название объявления")
+	} else if len(titleSpaceRemoval) > 200 {
+		return "", errors.New("Название не может содержать болие двухсот символов")
 	}
-  return titlePrepare, nil
-}
-
-func prepareTitle(imputTitle string) (outputTitle string) {
-	priceSpaceRemoval := strings.TrimSpace(imputTitle)
-	return priceSpaceRemoval
+	return titleSpaceRemoval, nil
 }

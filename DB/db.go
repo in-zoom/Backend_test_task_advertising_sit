@@ -17,12 +17,12 @@ var err error
 var rows *sql.Rows
 
 func open() (*sql.DB, error) {
-	db = connect()
+	db = Сonnect()
 	err = createTable()
 	return db, err
 }
 
-func connect() *sql.DB {
+func Сonnect() *sql.DB {
 	databaseURL := os.Getenv("DATABASE_URL")
 	db, err := sql.Open("postgres", databaseURL)
 	if err != nil {
@@ -48,9 +48,8 @@ func createTable() error {
 	return nil
 }
 
-func GettingNumberOfRecords() (numbeOfRecords int, err error) {
-	db := connect()
-	query := "SELECT count(*) FROM ad_table"
+func GettingNumberOfRecords(colum string, db *sql.DB) (numbeOfRecords int, err error) {
+	query := fmt.Sprintf("SELECT %s FROM ad_table", colum)
 	rows, err = db.Query(query)
 	if err != nil {
 		return 0, err
@@ -86,7 +85,7 @@ func AddNewAd(description, title string, price float64, arrayOfLinks []string) (
 }
 
 func ReceiveListAds(attribute, order, offset string) ([]data.Ads, error) {
-	db := connect()
+	db := Сonnect()
 	query := "SELECT id, date, title_ad, links[1:1], price FROM ad_table" + " " + attribute + " " + order + " " + "limit 10" + " " + offset
 	rows, err = db.Query(query)
 	if err != nil {
@@ -110,7 +109,7 @@ func ReceiveListAds(attribute, order, offset string) ([]data.Ads, error) {
 }
 
 func GetOneAd(id, fields string) ([]data.Ads, error) {
-	db := connect()
+	db := Сonnect()
 	query := fmt.Sprintf("SELECT date, price, title_ad, %s FROM ad_table WHERE id = %s", fields, id)
 	rows, err = db.Query(query)
 	if err != nil {

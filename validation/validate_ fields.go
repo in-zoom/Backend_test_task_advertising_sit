@@ -7,7 +7,9 @@ import (
 
 func ValidateFields(fields []string) (string, error) {
 
-	if len(fields) == 0 {
+	if len(fields) > 2 {
+		return "", errors.New("Можно задать не больше двух параметров")
+	} else if len(fields) == 0 {
 		return "links[1:1]", nil
 	}
 

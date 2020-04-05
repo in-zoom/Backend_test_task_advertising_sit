@@ -7,12 +7,14 @@ import (
 
 func ValidateAtribute(attribute string) (string, error) {
 	witeAttribute := []string{"price", "date"}
-	prepareAttribute := prepare(attribute)
-	if prepareAttribute == "" {
+	attributeSpaceRemoval := strings.TrimSpace(attribute)
+
+	if attributeSpaceRemoval == "" {
 		return "", nil
 	}
+
 	for _, currentAttribute := range witeAttribute {
-		if prepareAttribute == currentAttribute {
+		if attributeSpaceRemoval == currentAttribute {
 			return "ORDER BY" + " " + attribute, nil
 		}
 
@@ -22,19 +24,16 @@ func ValidateAtribute(attribute string) (string, error) {
 
 func ValidateOrder(order string) (string, error) {
 	witeOrder := []string{"asc", "desc"}
-	prepareOrder := prepare(order)
-	if prepareOrder == "" {
+	orderSpaceRemoval := strings.TrimSpace(order)
+
+	if orderSpaceRemoval == "" {
 		return "", nil
 	}
+
 	for _, currentOrder := range witeOrder {
-		if prepareOrder == currentOrder {
+		if orderSpaceRemoval == currentOrder {
 			return order, nil
 		}
 	}
 	return "", errors.New("Неверный параметр сортировки")
-}
-
-func prepare(imput string) string {
-	emailSpaceRemoval := strings.TrimSpace(imput)
-	return emailSpaceRemoval
 }

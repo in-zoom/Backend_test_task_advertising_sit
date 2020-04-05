@@ -2,15 +2,19 @@ package validation
 
 import (
 	"Backend_task_advertising_site/DB"
+	"database/sql"
 	"errors"
 	"strconv"
+	"strings"
 )
 
-func ValidateOffset(offset string) (resultOffset string, err error) {
-	if offset == "" {
+func ValidateOffset(offset string, db *sql.DB) (resultOffset string, err error) {
+	offsetSpaceRemoval := strings.TrimSpace(offset)
+
+	if offsetSpaceRemoval == "" {
 		return "", nil
 	}
-	offsetInt, err := strconv.Atoi(offset)
+	offsetInt, err := strconv.Atoi(offsetSpaceRemoval)
 	if err != nil {
 		return "", errors.New("Задано некорректное значение")
 	}
@@ -19,7 +23,7 @@ func ValidateOffset(offset string) (resultOffset string, err error) {
 		return "", errors.New("Значение не может быть отрицательным")
 	}
 
-	numberOfRecords, err := DB.GettingNumberOfRecords()
+	numberOfRecords, err := DB.GettingNumberOfRecords("count(*)", db)
 	if err != nil {
 		return "", err
 	}
@@ -29,5 +33,4 @@ func ValidateOffset(offset string) (resultOffset string, err error) {
 	} else {
 		return "offset" + " " + offset, nil
 	}
-	return "", nil
 }

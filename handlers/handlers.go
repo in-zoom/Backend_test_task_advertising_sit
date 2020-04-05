@@ -121,7 +121,7 @@ func GetListAds(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		return
 	}
 
-	resultOffset, err := validation.ValidateOffset(offset)
+	resultOffset, err := validation.ValidateOffset(offset, DB.Сonnect())
 	if err != nil {
 		ResponseError(w, 400, err)
 		return
@@ -142,8 +142,8 @@ func GetSpecificAd(w http.ResponseWriter, r *http.Request, _ httprouter.Params) 
 	fields, _ := url["fields"]
 
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-
-	resultId, err := validation.ValidateId(id)
+	//db := DB.Сonnect()
+	resultId, err := validation.ValidateId(id, DB.Сonnect())
 	if err != nil {
 		ResponseError(w, 400, err)
 		return
