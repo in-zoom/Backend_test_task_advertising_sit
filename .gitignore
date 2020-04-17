@@ -1,2 +1,3 @@
 .env
+.dockerignore
 1.jpg
