@@ -1,7 +1,7 @@
 package validation
 
 import (
-	"Backend_task_advertising_site/DB"
+	"backend_task_advertising_site/DB"
 	"database/sql"
 	"errors"
 	"strconv"

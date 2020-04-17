@@ -1,10 +1,10 @@
 package handlers
 
 import (
-	"Backend_task_advertising_site/DB"
-	"Backend_task_advertising_site/controllers"
-	"Backend_task_advertising_site/data"
-	"Backend_task_advertising_site/validation"
+	"backend_task_advertising_site/DB"
+	"backend_task_advertising_site/controllers"
+	"backend_task_advertising_site/data"
+	"backend_task_advertising_site/validation"
 	"encoding/json"
 	"io"
 	"mime"
@@ -14,6 +14,10 @@ import (
 
 	"github.com/julienschmidt/httprouter"
 )
+
+type EventsController struct {
+	BucketCtrl *controllers.BucketController
+}
 
 type errMessage struct {
 	Message string `json:"message"`
@@ -25,7 +29,7 @@ type message struct {
 	Id        int    `json:"id"`
 }
 
-func AddNewAd(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (ec EventsController) AddNewAd(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	contentType, params, err := mime.ParseMediaType(r.Header.Get("Content-Type"))
 	if err != nil || !strings.HasPrefix(contentType, "multipart/") {
@@ -51,7 +55,7 @@ func AddNewAd(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 		switch part.Header.Get("Content-Type") {
 		case "image/jpeg":
 
-			nameLinks, err := controllers.UploadFilesToBucket(part)
+			nameLinks, err := ec.BucketCtrl.UploadFilesToBucket(part)
 			if err != nil {
 				ResponseError(w, 400, err)
 				return

@@ -1,7 +1,7 @@
 package DB
 
 import (
-	"Backend_task_advertising_site/data"
+	"backend_task_advertising_site/data"
 	"database/sql"
 	"fmt"
 	"log"

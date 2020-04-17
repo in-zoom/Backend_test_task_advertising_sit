@@ -1,7 +1,7 @@
 package random
 
 import (
-	"Backend_task_advertising_site/validation"
+	"backend_task_advertising_site/validation"
 	"fmt"
 	"math/rand"
 	"strings"

@@ -1,7 +1,7 @@
 package validation
 
 import (
-	"Backend_task_advertising_site/validation"
+	"backend_task_advertising_site/validation"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
