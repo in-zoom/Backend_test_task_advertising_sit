@@ -2,8 +2,10 @@ package controllers
 
 import (
 	"backend_task_advertising_site/random"
+	"bytes"
+	"io"
+	"io/ioutil"
 	"mime/multipart"
-	"os"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
@@ -14,14 +16,13 @@ type BucketController struct {
 }
 
 func (bc BucketController) UploadFilesToBucket(part *multipart.Part) (string, error) {
-
-	nameFile := part.FileName()
-	file, err := os.Open(nameFile)
+	fileBytes, err := ioutil.ReadAll(part)
 	if err != nil {
 		return "", err
 	}
 
-	fileName, err := random.RandomFileName(nameFile)
+	file := io.MultiReader(bytes.NewReader(fileBytes))
+	fileName, err := random.RandomFileName(part.FileName())
 	if err != nil {
 		return "", err
 	}
