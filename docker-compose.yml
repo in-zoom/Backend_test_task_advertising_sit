@@ -1,4 +1,4 @@
-version: "3"
+version: '3'
 services:
   server:
     env_file: .env
@@ -7,4 +7,15 @@ services:
       dockerfile: Dockerfile
     ports:
       - 8080:8080  
-    network_mode: host
+  
+  postgres:
+    container_name: postgres
+    restart: always
+    image: postgres
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: DB
+    
