@@ -1,6 +1,6 @@
 FROM golang
 RUN apt-get clean && apt-get update
-WORKDIR /go/src/github.com/zaffka/newwords
+WORKDIR /go/src/github.com/backend_task_advertising_site
 ADD . .
 RUN apt-get install -qy nano
 RUN go get -d -v
