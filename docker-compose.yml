@@ -1,13 +1,13 @@
 version: '3'
 services:
   server:
-    env_file: .env
+    env_file: Example.env
     build:
       context: .
       dockerfile: Dockerfile
     ports:
-      - 8080:8080  
-  
+      - 8080:8080 
+    network_mode: host
   postgres:
     container_name: postgres
     restart: always
@@ -18,4 +18,3 @@ services:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password
       POSTGRES_DB: DB
-    

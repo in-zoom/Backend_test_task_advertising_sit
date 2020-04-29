@@ -75,9 +75,7 @@ func AddNewAd(description, title string, price float64, arrayOfLinks []string) (
 	db, err := open()
 	var id int
 	ins := "INSERT INTO ad_table (announcement_text, title_ad, price, links, date) VALUES ($1, $2, $3, $4, $5) returning id"
-	fmt.Println(ins)
 	err = db.QueryRow(ins, description, title, price, pq.Array(arrayOfLinks), tt).Scan(&id)
-	fmt.Println(err)
 	if err != nil {
 		return 0, err
 	}
